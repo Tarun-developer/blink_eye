@@ -6,6 +6,7 @@
     <title>Blink Eye Hospitals - Database ERD</title>
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/panzoom@9.4.3/dist/panzoom.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <style>
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
@@ -179,6 +180,7 @@
                     <button class="control-btn" onclick="zoomOut()">Zoom Out</button>
                     <button class="control-btn" onclick="resetZoom()">Reset</button>
                     <button class="control-btn" onclick="fitToScreen()">Fit</button>
+                    <button class="control-btn" onclick="exportDiagram()">Export HD</button>
                 </div>
                 <div class="zoom-info" id="zoomInfo">Zoom: 100%</div>
                 <div class="mermaid" id="mermaidDiagram">
@@ -519,6 +521,44 @@ erDiagram
             const zoomInfo = document.getElementById('zoomInfo');
             if (zoomInfo) {
                 zoomInfo.textContent = `Zoom: ${(currentZoom * 100).toFixed(0)}%`;
+            }
+        }
+
+        function exportDiagram() {
+            const diagramElement = document.querySelector('.mermaid svg');
+            if (diagramElement) {
+                // Temporarily reset zoom for export
+                const originalTransform = panZoomInstance ? panZoomInstance.getTransform() : null;
+                if (panZoomInstance) {
+                    panZoomInstance.moveTo(0, 0);
+                    panZoomInstance.zoomAbs(0, 0, 1);
+                }
+
+                // Use html2canvas to export as high-quality image
+                html2canvas(diagramElement, {
+                    backgroundColor: '#ffffff',
+                    scale: 2, // HD quality (2x resolution)
+                    useCORS: true,
+                    allowTaint: false,
+                    width: diagramElement.clientWidth,
+                    height: diagramElement.clientHeight
+                }).then(canvas => {
+                    // Create download link
+                    const link = document.createElement('a');
+                    link.download = 'blink_eye_hospitals_erd_hd.png';
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+
+                    // Restore original zoom if it existed
+                    if (panZoomInstance && originalTransform) {
+                        panZoomInstance.zoomAbs(originalTransform.x, originalTransform.y, originalTransform.scale);
+                    }
+                }).catch(err => {
+                    console.error('Export failed:', err);
+                    alert('Export failed. Please try again.');
+                });
+            } else {
+                alert('Diagram not found. Please wait for it to load.');
             }
         }
 
