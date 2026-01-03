@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blink Eye Hospitals - Database ERD</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+        .header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+            font-size: 1.2em;
+        }
+        .content {
+            padding: 40px;
+        }
+        .diagram-container {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 20px 0;
+            border: 1px solid #e9ecef;
+        }
+        .mermaid {
+            text-align: center;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .legend {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            border-left: 4px solid #4facfe;
+        }
+        .legend h3 {
+            margin-top: 0;
+            color: #495057;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .primary { background: #e3f2fd; border: 2px solid #2196f3; }
+        .foreign { background: #f3e5f5; border: 2px solid #9c27b0; }
+        .junction { background: #e8f5e8; border: 2px solid #4caf50; }
+        .global { background: #fff3e0; border: 2px solid #ff9800; }
+        .footer {
+            background: #343a40;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            font-size: 0.9em;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 30px 0;
+            text-align: center;
+        }
+        .stat-item {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            flex: 1;
+            margin: 0 10px;
+        }
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #4facfe;
+            display: block;
+        }
+        .stat-label {
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Blink Eye Hospitals</h1>
+            <p>Database Entity-Relationship Diagram</p>
+        </div>
+        
+        <div class="content">
+            <div class="stats">
+                <div class="stat-item">
+                    <span class="stat-number">15+</span>
+                    <span class="stat-label">Database Tables</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">50+</span>
+                    <span class="stat-label">Relationships</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">∞</span>
+                    <span class="stat-label">Scalable Tenants</span>
+                </div>
+            </div>
+
+            <div class="diagram-container">
+                <div class="mermaid">
+erDiagram
+    %% Core System Tables
+    TENANTS ||--o{ USERS : manages
+    TENANTS ||--o{ ROLES : defines
+    TENANTS ||--o{ PATIENTS : serves
+    TENANTS ||--o{ APPOINTMENTS : handles
+    TENANTS ||--o{ MEDICAL_RECORDS : stores
+    TENANTS ||--o{ DOCTOR_DOCUMENTS : verifies
+    TENANTS ||--o{ ACCOMMODATIONS : provides
+    TENANTS ||--o{ LEADS : captures
+    TENANTS ||--o{ BILLING_INVOICES : processes
+    TENANTS ||--o{ INVENTORY_ITEMS : manages
+    TENANTS ||--o{ TELEMEDICINE_SESSIONS : conducts
+    TENANTS ||--o{ CONTENT_TENANT_VARIANTS : customizes
+
+    %% User Management
+    USERS ||--o{ USER_ROLES : assigned
+    ROLES ||--o{ USER_ROLES : granted
+    ROLES ||--o{ ROLE_PERMISSIONS : configured
+    PERMISSIONS ||--o{ ROLE_PERMISSIONS : defines
+
+    %% Healthcare Operations
+    PATIENTS ||--o{ APPOINTMENTS : schedules
+    USERS ||--o{ APPOINTMENTS : provides
+    PATIENTS ||--o{ MEDICAL_RECORDS : generates
+    USERS ||--o{ MEDICAL_RECORDS : creates
+    USERS ||--o{ DOCTOR_DOCUMENTS : owns
+    PATIENTS ||--o{ ACCOMMODATIONS : occupies
+    PATIENTS ||--o{ BILLING_INVOICES : receives
+    APPOINTMENTS ||--o{ BILLING_INVOICES : generates
+    PATIENTS ||--o{ TELEMEDICINE_SESSIONS : participates
+    USERS ||--o{ TELEMEDICINE_SESSIONS : conducts
+
+    %% Content Management
+    CONTENT_MASTER ||--o{ CONTENT_TENANT_VARIANTS : customized
+
+    %% Table Definitions with Colors
+    TENANTS {
+        integer id PK "Primary Key"
+        varchar name "Hospital Name"
+        varchar subdomain UK "Unique Subdomain"
+        json branding_config "Brand Settings"
+        enum status "Active/Inactive"
+    }
+
+    USERS {
+        integer id PK "Primary Key"
+        integer tenant_id FK "Tenant Isolation"
+        varchar email UK "Unique Email"
+        varchar password_hash "Secure Password"
+        varchar first_name "First Name"
+        varchar last_name "Last Name"
+        varchar phone "Contact Number"
+        boolean is_active "Account Status"
+    }
+
+    ROLES {
+        integer id PK "Primary Key"
+        integer tenant_id FK "Tenant Scope"
+        varchar name UK "Role Name"
+        text description "Role Description"
+    }
+
+    PERMISSIONS {
+        integer id PK "Primary Key"
+        varchar name UK "Permission Name"
+        text description "Permission Details"
+        varchar resource "System Resource"
+        varchar action "Allowed Action"
+    }
+
+    PATIENTS {
+        integer id PK "Primary Key"
+        integer tenant_id FK "Tenant Isolation"
+        varchar first_name "Patient First Name"
+        varchar last_name "Patient Last Name"
+        date date_of_birth "Birth Date"
+        enum gender "Male/Female/Other"
+        varchar email "Email Address"
+        varchar phone "Phone Number"
+        text address "Home Address"
+        varchar medical_record_number UK "MRN"
+    }
+
+    APPOINTMENTS {
+        integer id PK "Primary Key"
+        integer tenant_id FK "Tenant Isolation"
+        integer patient_id FK "Patient Reference"
+        integer doctor_id FK "Doctor Reference"
+        timestamp appointment_date "Scheduled Time"
+        integer duration_minutes "Duration"
+        enum status "Appointment Status"
+        text notes "Additional Notes"
+    }
+
+    MEDICAL_RECORDS {
+        integer id PK "Primary Key"
+        integer tenant_id FK "Tenant Isolation"
+        integer patient_id FK "Patient Reference"
+        integer doctor_id FK "Doctor Reference"
+        varchar record_type "Record Category"
+        timestamp record_date "Entry Date"
+        text diagnosis "Medical Diagnosis"
+        text treatment "Treatment Plan"
+        text notes "Clinical Notes"
+        json attachments "File Attachments"
+    }
+
+    DOCTOR_DOCUMENTS {
+        integer id PK "Primary Key"
+        integer tenant_id FK "Tenant Isolation"
+        integer doctor_id FK "Doctor Reference"
+        varchar document_type "Document Type"
+        varchar file_path "File Location"
+        date expiry_date "Expiration Date"
+        enum status "Document Status"
+    }
+
+    ACCOMMODATIONS {
+        integer id PK "Primary Key"
+        integer tenant_id FK "Tenant Isolation"
+        integer patient_id FK "Patient Reference"
+        varchar room_number "Room Number"
+        varchar bed_number "Bed Number"
+        timestamp admission_date "Admission Time"
+        timestamp discharge_date "Discharge Time"
+        enum status "Room Status"
+        text notes "Accommodation Notes"
+    }
+
+    LEADS {
+        integer id PK "Primary Key"
+        integer tenant_id FK "Tenant Isolation"
+        varchar first_name "Lead First Name"
+        varchar last_name "Lead Last Name"
+        varchar email "Email Address"
+        varchar phone "Phone Number"
+        varchar source "Lead Source"
+        enum status "Lead Status"
+        text notes "Lead Notes"
+    }
+
+    CONTENT_MASTER {
+        integer id PK "Primary Key"
+        varchar content_type "Content Category"
+        varchar title "Content Title"
+        text default_content "Default Content"
+        json metadata "Content Metadata"
+    }
+
+    CONTENT_TENANT_VARIANTS {
+        integer id PK "Primary Key"
+        integer tenant_id FK "Tenant Isolation"
+        integer content_master_id FK "Master Content"
+        text customized_content "Custom Content"
+        boolean is_active "Active Status"
+    }
+
+    BILLING_INVOICES {
+        integer id PK "Primary Key"
+        integer tenant_id FK "Tenant Isolation"
+        integer patient_id FK "Patient Reference"
+        integer appointment_id FK "Appointment Link"
+        decimal total_amount "Invoice Total"
+        decimal paid_amount "Amount Paid"
+        enum status "Payment Status"
+        date due_date "Payment Due Date"
+    }
+
+    INVENTORY_ITEMS {
+        integer id PK "Primary Key"
+        integer tenant_id FK "Tenant Isolation"
+        varchar name "Item Name"
+        varchar category "Item Category"
+        integer quantity "Stock Quantity"
+        decimal unit_cost "Cost per Unit"
+        varchar supplier "Supplier Name"
+        date expiry_date "Expiration Date"
+        varchar location "Storage Location"
+    }
+
+    TELEMEDICINE_SESSIONS {
+        integer id PK "Primary Key"
+        integer tenant_id FK "Tenant Isolation"
+        integer patient_id FK "Patient Reference"
+        integer doctor_id FK "Doctor Reference"
+        timestamp session_date "Session Time"
+        integer duration_minutes "Session Length"
+        enum status "Session Status"
+        varchar recording_url "Recording Link"
+        text notes "Session Notes"
+    }
+
+    USER_ROLES {
+        integer id PK "Primary Key"
+        integer tenant_id FK "Tenant Isolation"
+        integer user_id FK "User Reference"
+        integer role_id FK "Role Reference"
+        timestamp assigned_at "Assignment Date"
+    }
+
+    ROLE_PERMISSIONS {
+        integer id PK "Primary Key"
+        integer tenant_id FK "Tenant Isolation"
+        integer role_id FK "Role Reference"
+        integer permission_id FK "Permission Reference"
+    }
+                </div>
+            </div>
+
+            <div class="legend">
+                <h3>Database Architecture Overview</h3>
+                <div class="legend-item">
+                    <div class="legend-color primary"></div>
+                    <div><strong>Primary Keys:</strong> Unique identifiers for each record</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color foreign"></div>
+                    <div><strong>Foreign Keys:</strong> References to related tables (tenant_id for multi-tenancy)</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color junction"></div>
+                    <div><strong>Junction Tables:</strong> Many-to-many relationships (user_roles, role_permissions)</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color global"></div>
+                    <div><strong>Global Tables:</strong> Shared across all tenants (permissions, content_master)</div>
+                </div>
+                
+                <h4 style="margin-top: 20px;">Key Features:</h4>
+                <ul>
+                    <li><strong>Multi-Tenant Architecture:</strong> Each hospital operates in complete isolation</li>
+                    <li><strong>Scalable Design:</strong> Supports unlimited hospitals with shared infrastructure</li>
+                    <li><strong>Healthcare Compliance:</strong> Secure patient data management</li>
+                    <li><strong>Role-Based Access:</strong> Granular permissions for different user types</li>
+                    <li><strong>Comprehensive Tracking:</strong> Full audit trail of all operations</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Blink Eye Hospitals Database Design | Created by Tarun | Multi-Tenant Healthcare Platform</p>
+        </div>
+    </div>
+
+    <script>
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            },
+            er: {
+                useMaxWidth: true,
+                layoutDirection: 'TB'
+            }
+        });
+    </script>
+</body>
+</html>
