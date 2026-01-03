@@ -4,23 +4,179 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blink Eye Hospitals Platform Documentation</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        h1 { color: #333; }
+        body { font-family: Arial, sans-serif; margin: 20px; max-width: 1200px; margin: 0 auto; padding: 20px; }
+        h1, h2, h3 { color: #2c3e50; }
+        h1 { border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        h2 { border-bottom: 1px solid #bdc3c7; padding-bottom: 5px; margin-top: 30px; }
         p { line-height: 1.6; }
+        code { background: #f8f9fa; padding: 2px 4px; border-radius: 3px; }
+        pre { background: #f8f9fa; padding: 15px; border-radius: 5px; overflow-x: auto; }
+        ul { padding-left: 20px; }
+        .mermaid { text-align: center; margin: 20px 0; }
     </style>
 </head>
 <body>
-    <h1>Blink Eye Hospitals Platform Documentation</h1>
-    <p>This is the comprehensive documentation for the Blink Eye Hospitals platform, created by Tarun.</p>
-    <p>The platform is a multi-tenant digital healthcare system using Laravel and MySQL.</p>
-    <p>For full documentation, please refer to the Markdown files in this repository.</p>
+    <h1>Blink Eye Hospitals Platform</h1>
+
+    <p>A simple, web-based healthcare management system for eye care hospitals. It helps hospitals manage patients, appointments, and records securely using separate websites for each hospital.</p>
+
+    <h2>How It Works</h2>
+
+    <h3>Domain and Subdomain System</h3>
+
+    <p>Each hospital gets its own website address (subdomain) under the main Blink Eye domain. This keeps data separate and secure.</p>
+
+    <div class="mermaid">
+    graph TD
+        A[Main Domain: blinkeye.com] --> B[Hospital 1: hospital1.blinkeye.com]
+        A --> C[Hospital 2: hospital2.blinkeye.com]
+        A --> D[Hospital 3: hospital3.blinkeye.com]
+
+        B --> E[Hospital 1 Data]
+        C --> F[Hospital 2 Data]
+        D --> G[Hospital 3 Data]
+    </div>
+
     <ul>
-        <li><a href="README.md">README</a></li>
-        <li><a href="business_analysis.md">Business Analysis</a></li>
-        <li><a href="architecture_diagrams.md">Architecture Diagrams</a></li>
-        <li><a href="database_schema.md">Database Schema</a></li>
-        <li>And more...</li>
+        <li><strong>Main Domain</strong>: blinkeye.com - Platform management</li>
+        <li><strong>Subdomains</strong>: Each hospital like stjohns.blinkeye.com - Hospital-specific access</li>
+        <li><strong>Isolation</strong>: Data stays separate between hospitals</li>
     </ul>
+
+    <h3>User Registration Process</h3>
+
+    <p>Users register through their hospital's subdomain. The system creates accounts in the database with hospital-specific data.</p>
+
+    <div class="mermaid">
+    sequenceDiagram
+        participant U as User
+        participant W as Hospital Website
+        participant DB as Database
+
+        U->>W: Visit hospital subdomain
+        U->>W: Fill registration form
+        W->>DB: Save user with tenant_id
+        DB-->>W: Registration complete
+        W-->>U: Account created
+    </div>
+
+    <ul>
+        <li><strong>Registration</strong>: Users sign up on their hospital's site</li>
+        <li><strong>Database</strong>: Stores user info with hospital ID (tenant_id)</li>
+        <li><strong>Access</strong>: Users can only see their hospital's data</li>
+    </ul>
+
+    <h3>Database Integration with Subdomains</h3>
+
+    <p>The database uses tenant_id to connect subdomains to their data. All queries filter by this ID for security.</p>
+
+    <div class="mermaid">
+    graph LR
+        A[Subdomain: hospital.blinkeye.com] --> B[Laravel Application]
+        B --> C[MySQL Database]
+        C --> D[(Tables with tenant_id)]
+
+        E[tenant_id = 1] --> F[Hospital Data]
+        G[tenant_id = 2] --> H[Other Hospital Data]
+    </div>
+
+    <ul>
+        <li><strong>Tenant ID</strong>: Links subdomain to database records</li>
+        <li><strong>Filtering</strong>: Application ensures users see only their data</li>
+        <li><strong>Security</strong>: No cross-hospital data access</li>
+    </ul>
+
+    <h2>What This Project Covers</h2>
+
+    <p>The Blink Eye Hospitals platform is a comprehensive digital healthcare management system that handles:</p>
+
+    <ul>
+        <li><strong>Lead Management</strong>: Capture and nurture patient inquiries from website forms, calls, and marketing campaigns</li>
+        <li><strong>Multi-Hospital Management</strong>: Support unlimited hospitals with separate subdomains and isolated data</li>
+        <li><strong>Patient Portal</strong>: Secure online access for patients to book appointments, view records, and communicate</li>
+        <li><strong>Doctor Management</strong>: Verify credentials, manage schedules, and track performance</li>
+        <li><strong>Appointment Scheduling</strong>: Online booking system with automated reminders</li>
+        <li><strong>Electronic Health Records</strong>: Secure storage and management of patient medical data</li>
+        <li><strong>Billing & Insurance</strong>: Process payments, handle insurance claims, and generate invoices</li>
+        <li><strong>Analytics & Reporting</strong>: Track hospital performance, patient outcomes, and business metrics</li>
+        <li><strong>Content Management</strong>: Dynamic website content tailored to each hospital location</li>
+        <li><strong>Accommodation Services</strong>: Partner hotels for outstation patients</li>
+        <li><strong>Telemedicine</strong>: Virtual consultations and remote care capabilities</li>
+        <li><strong>Compliance & Security</strong>: Healthcare regulations, data privacy, and secure access controls</li>
+    </ul>
+
+    <h2>Key Features</h2>
+
+    <ul>
+        <li><strong>Patient Management</strong>: Store medical records and history</li>
+        <li><strong>Appointment Booking</strong>: Schedule visits online</li>
+        <li><strong>Doctor Portal</strong>: Manage patient care</li>
+        <li><strong>Billing</strong>: Handle payments and insurance</li>
+        <li><strong>Analytics</strong>: View hospital performance</li>
+        <li><strong>Secure</strong>: Separate data per hospital</li>
+    </ul>
+
+    <h2>Technology Stack</h2>
+
+    <ul>
+        <li><strong>Frontend</strong>: Blade templates with Tailwind CSS for responsive UI</li>
+        <li><strong>Backend</strong>: Monolithic Laravel application</li>
+        <li><strong>Database</strong>: MySQL for data storage</li>
+        <li><strong>Cache</strong>: Redis for speed</li>
+        <li><strong>Hosting</strong>: Cloud-based with subdomains</li>
+    </ul>
+
+    <h2>Installation and Setup</h2>
+
+    <p><em>Note: This project is in planning phase. Setup instructions will be added later.</em></p>
+
+    <h3>Prerequisites</h3>
+    <ul>
+        <li>PHP (v8.1+)</li>
+        <li>Composer</li>
+        <li>MySQL (v8+)</li>
+        <li>Redis</li>
+    </ul>
+
+    <h3>Development Setup</h3>
+    <ol>
+        <li>Clone the repository</li>
+        <li>Install dependencies: <code>composer install</code></li>
+        <li>Set up environment variables (.env file)</li>
+        <li>Initialize database: <code>php artisan migrate</code></li>
+        <li>Start development server: <code>php artisan serve</code></li>
+    </ol>
+
+    <h2>Usage Guide</h2>
+
+    <h3>For Patients</h3>
+    <ol>
+        <li>Visit your hospital's subdomain (e.g., stjohns.blinkeye.com)</li>
+        <li>Register for a patient portal account</li>
+        <li>Book appointments and view records</li>
+    </ol>
+
+    <h3>For Healthcare Providers</h3>
+    <ol>
+        <li>Login to admin dashboard via hospital subdomain</li>
+        <li>Manage patients, appointments, and records</li>
+    </ol>
+
+    <h2>Documentation</h2>
+
+    <p>For more details, see:</p>
+    <ul>
+        <li><a href="database_schema.md">Database Schema</a></li>
+        <li><a href="architecture_diagrams.md">System Diagrams</a></li>
+        <li><a href="business_analysis.md">Business Overview</a></li>
+    </ul>
+
+    <hr>
+
+    <p><strong>Blink Eye Hospitals</strong> - Simple healthcare management for eye care.</p>
+
+    <p><em>Created by Tarun</em></p>
 </body>
 </html>
