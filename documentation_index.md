@@ -37,7 +37,7 @@ This index provides a comprehensive overview of all documentation for the Blink 
 - Provides foundation for RBAC implementation in [`rbac_design.md`](rbac_design.md)
 
 #### [`database_schema.md`](database_schema.md)
-**Summary**: Complete PostgreSQL database schema with tenant-based architecture, Row-Level Security (RLS) policies, table definitions, relationships, and scalability considerations. Includes ERD diagram.
+**Summary**: Complete MySQL database schema with tenant-based architecture, application-level filtering, table definitions, relationships, and scalability considerations. Includes ERD diagram.
 
 **Interconnections**:
 - ERD integrated into [`architecture_diagrams.md`](architecture_diagrams.md)

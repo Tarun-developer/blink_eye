@@ -1,11 +1,11 @@
 # Blink Eye Hospitals Database Schema
 
 ## Overview
-This schema implements a tenant-based architecture for the Blink Eye Hospitals platform. All tenant-specific tables include a `tenant_id` column for data isolation. The schema uses PostgreSQL with row-level security (RLS) for enforcing tenant isolation.
+This schema implements a tenant-based architecture for the Blink Eye Hospitals platform. All tenant-specific tables include a `tenant_id` column for data isolation. The schema uses MySQL with application-level tenant isolation.
 
 ## Data Isolation
 - Every tenant-specific table has a `tenant_id` foreign key to `tenants.id`.
-- Row-Level Security (RLS) policies ensure users can only access data for their tenant.
+- Application-level filtering ensures users can only access data for their tenant.
 - All application queries must include `tenant_id` filters.
 
 ## RBAC Enforcement
@@ -26,37 +26,33 @@ This schema implements a tenant-based architecture for the Blink Eye Hospitals p
 #### tenants
 ```sql
 CREATE TABLE tenants (
-    id SERIAL PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     subdomain VARCHAR(100) UNIQUE NOT NULL,
-    branding_config JSONB,
-    status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'suspended')),
+    branding_config JSON,
+    status ENUM('active', 'inactive', 'suspended') DEFAULT 'active',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
--- Partition by range if needed, but for simplicity, not partitioned here
 CREATE INDEX idx_tenants_subdomain ON tenants(subdomain);
 ```
 
 #### users
 ```sql
 CREATE TABLE users (
-    id SERIAL PRIMARY KEY,
-    tenant_id INTEGER NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    tenant_id INT NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     first_name VARCHAR(100),
     last_name VARCHAR(100),
     phone VARCHAR(20),
-    is_active BOOLEAN DEFAULT TRUE,
+    is_active TINYINT(1) DEFAULT 1,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE
 );
-
--- Enable RLS
-ALTER TABLE users ENABLE ROW LEVEL SECURITY;
-CREATE POLICY users_tenant_isolation ON users USING (tenant_id = current_setting('app.current_tenant_id')::INTEGER);
 
 CREATE INDEX idx_users_tenant_email ON users(tenant_id, email);
 CREATE INDEX idx_users_email ON users(email);
@@ -420,7 +416,7 @@ erDiagram
 ```
 
 ## Notes
-- All tenant-specific tables have RLS enabled with policies filtering on `tenant_id`.
+- All tenant-specific tables have tenant_id for application-level filtering.
 - Indexes are created on tenant_id and key fields for performance.
 - For production, consider partitioning tables by tenant_id for better scalability.
 - Sharding can be implemented at the database level by tenant_id ranges.

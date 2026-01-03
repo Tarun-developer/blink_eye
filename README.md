@@ -1,69 +1,128 @@
 # Blink Eye Hospitals Platform
 
-## Project Overview
+A simple, web-based healthcare management system for eye care hospitals. It helps hospitals manage patients, appointments, and records securely using separate websites for each hospital.
 
-The Blink Eye Hospitals platform is a comprehensive, cloud-based healthcare management system specifically designed for eye care hospitals and clinics. It digitizes and streamlines hospital operations, enhances patient care delivery, and provides scalable infrastructure that supports growth from small regional facilities to large hospital networks.
+## How It Works
 
-The platform serves as a unified ecosystem integrating administrative functions, clinical workflows, patient engagement, and data analytics, all while maintaining enterprise-grade security and compliance standards. It features a modular, tenant-based solution deployable across multiple hospitals without compromising customization or performance, using a subdomain-only model for secure, isolated environments.
+### Domain and Subdomain System
 
-## Business Purpose
+Each hospital gets its own website address (subdomain) under the main Blink Eye domain. This keeps data separate and secure.
 
-Blink Eye aims to address inefficiencies in traditional healthcare management by offering a solution that:
+```mermaid
+graph TD
+    A[Main Domain: blinkeye.com] --> B[Hospital 1: hospital1.blinkeye.com]
+    A --> C[Hospital 2: hospital2.blinkeye.com]
+    A --> D[Hospital 3: hospital3.blinkeye.com]
 
-- **Digitizes Operations**: Replaces paper-based systems with comprehensive digital workflows
-- **Enhances Patient Care**: Provides intuitive tools for healthcare providers and convenient access for patients
-- **Enables Scalability**: Supports growth from 5 to 500+ hospitals through cloud-native architecture
-- **Ensures Compliance**: Built-in support for international healthcare regulations and data privacy standards
-- **Drives Efficiency**: Automated workflows reduce administrative burden by up to 60%
-- **Delivers Insights**: Advanced analytics for better decision-making and patient outcomes
+    B --> E[Hospital 1 Data]
+    C --> F[Hospital 2 Data]
+    D --> G[Hospital 3 Data]
+```
 
-The platform targets hospital administrators, healthcare providers, IT staff, and patients, with specialized focus on eye care while adaptable to broader healthcare applications.
+- **Main Domain**: blinkeye.com - Platform management
+- **Subdomains**: Each hospital like stjohns.blinkeye.com - Hospital-specific access
+- **Isolation**: Data stays separate between hospitals
+
+### User Registration Process
+
+Users register through their hospital's subdomain. The system creates accounts in the database with hospital-specific data.
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant W as Hospital Website
+    participant DB as Database
+
+    U->>W: Visit hospital subdomain
+    U->>W: Fill registration form
+    W->>DB: Save user with tenant_id
+    DB-->>W: Registration complete
+    W-->>U: Account created
+```
+
+- **Registration**: Users sign up on their hospital's site
+- **Database**: Stores user info with hospital ID (tenant_id)
+- **Access**: Users can only see their hospital's data
+
+### Database Integration with Subdomains
+
+The database uses tenant_id to connect subdomains to their data. All queries filter by this ID for security.
+
+```mermaid
+graph LR
+    A[Subdomain: hospital.blinkeye.com] --> B[API Gateway]
+    B --> C[Microservices]
+    C --> D[MySQL Database]
+    D --> E[(Tables with tenant_id)]
+
+    F[tenant_id = 1] --> G[Hospital Data]
+    H[tenant_id = 2] --> I[Other Hospital Data]
+```
+
+- **Tenant ID**: Links subdomain to database records
+- **Filtering**: Application ensures users see only their data
+- **Security**: No cross-hospital data access
 
 ## Key Features
 
-### Core Platform Features
-- **Tenant-Based Architecture**: Isolated environments for each hospital with customizable branding and workflows
-- **Subdomain-Only Model**: Secure, dedicated subdomains (e.g., `hospital.blinkeye.com`) for each tenant
-- **Multi-Platform Support**: Responsive web interface, native mobile apps (iOS/Android), and patient portals
-- **Electronic Health Records (EHR)**: Comprehensive patient data management with eye-specific templates
-- **Appointment Scheduling**: Intelligent booking system with automated reminders and waitlist management
-- **Billing and Insurance Integration**: Seamless processing of claims and payments
-- **Inventory Management**: Real-time tracking of medical supplies and equipment
-- **Telemedicine Capabilities**: Virtual consultations and remote monitoring
+- **Patient Management**: Store medical records and history
+- **Appointment Booking**: Schedule visits online
+- **Doctor Portal**: Manage patient care
+- **Billing**: Handle payments and insurance
+- **Analytics**: View hospital performance
+- **Secure**: Separate data per hospital
 
-### Enterprise-Grade Features
-- **Advanced Security**: End-to-end encryption, HIPAA/GDPR compliance, and multi-factor authentication
-- **API Ecosystem**: Extensive integrations with third-party healthcare systems and devices
-- **Analytics Dashboard**: Real-time reporting on KPIs, patient outcomes, and operational metrics
-- **AI-Powered Insights**: Predictive analytics for appointment optimization and resource allocation
-- **Backup and Disaster Recovery**: Automated data redundancy and failover systems
-- **24/7 Support**: Dedicated enterprise support with SLA guarantees
+## Technology Stack
 
-### User-Facing Features
-- **Patient Portal**: Self-service booking, medical history access, and secure messaging with providers
-- **Doctor Directory**: Profiles with specializations, availability, and patient reviews
-- **Service Showcase**: Detailed information about treatments and procedures
-- **Accommodations Booking**: Room reservations integrated with appointments
-- **Multi-Language Support**: Interface localization for diverse patient populations
+- **Frontend**: React.js for web interfaces
+- **Backend**: Node.js microservices
+- **Database**: MySQL for data storage
+- **Cache**: Redis for speed
+- **Hosting**: Cloud-based with subdomains
 
-## Architecture Summary
+## Installation and Setup
 
-The platform employs a multi-tenant, cloud-based architecture with subdomain isolation. Key components include:
+*Note: This project is in planning phase. Setup instructions will be added later.*
 
-- **User Interfaces**: Patient portal (web), mobile apps (iOS/Android), and web admin dashboards
-- **API Layer**: API Gateway for authentication and routing, microservices for modular functionality (EHR, appointments, billing, etc.)
-- **Data Layer**: PostgreSQL database with Row-Level Security (RLS) for tenant isolation, file storage for documents/images, Redis cache for session and data management
-- **External Systems**: Integrations with payment processors, communication services, and third-party healthcare systems
+### Prerequisites
+- Node.js (v18+)
+- MySQL (v8+)
+- Redis
 
-The architecture supports horizontal scaling, with each tenant operating in isolation while sharing the underlying infrastructure. Data is partitioned by `tenant_id` for efficient scaling, and the system includes comprehensive audit trails and compliance automation.
+### Development Setup
+1. Clone the repository
+2. Install dependencies: `npm install`
+3. Set up environment variables
+4. Initialize database
+5. Start development server: `npm run dev`
 
-For detailed architecture diagrams, see [`architecture_diagrams.md`](architecture_diagrams.md).
+## Usage Guide
+
+### For Patients
+1. Visit your hospital's subdomain (e.g., stjohns.blinkeye.com)
+2. Register for a patient portal account
+3. Book appointments and view records
+
+### For Healthcare Providers
+1. Login to admin dashboard via hospital subdomain
+2. Manage patients, appointments, and records
+
+## Documentation
+
+For more details, see:
+- [`database_schema.md`](database_schema.md) - Database structure
+- [`architecture_diagrams.md`](architecture_diagrams.md) - System diagrams
+- [`business_analysis.md`](business_analysis.md) - Business overview
+
+---
+
+**Blink Eye Hospitals** - Simple healthcare management for eye care.
 
 ## Technology Stack
 
 - **Backend**: Microservices architecture (Node.js/Express recommended)
-- **Frontend**: React.js for web interfaces, React Native for mobile apps
-- **Database**: PostgreSQL with Row-Level Security (RLS) for multi-tenant data isolation
+- **Frontend**: React.js for web interfaces
+- **Database**: MySQL for multi-tenant data isolation
 - **Cache**: Redis for session management and data caching
 - **API Gateway**: For authentication, routing, and load balancing
 - **File Storage**: Cloud storage solutions (AWS S3, Google Cloud Storage) for documents and images
@@ -77,7 +136,7 @@ For detailed architecture diagrams, see [`architecture_diagrams.md`](architectur
 
 ### Prerequisites
 - Node.js (v18+)
-- PostgreSQL (v13+)
+- MySQL (v8+)
 - Redis
 - Docker and Docker Compose
 

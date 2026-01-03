@@ -5,10 +5,10 @@
 This guide provides comprehensive instructions for deploying and hosting the Blink Eye Hospitals platform, a multi-tenant healthcare management system. The platform follows a microservices architecture with tenant isolation, as detailed in the [architecture diagrams](architecture_diagrams.md).
 
 Key architectural components include:
-- **Multi-tenant isolation** via subdomain-based routing and PostgreSQL Row-Level Security (RLS)
+- **Multi-tenant isolation** via subdomain-based routing and application-level filtering
 - **Microservices** for modular functionality (EHR, appointments, billing, etc.)
 - **API Gateway** for authentication, routing, and load balancing
-- **PostgreSQL database** with tenant-specific data partitioning
+- **MySQL database** with tenant-specific data partitioning
 - **Redis cache** for session and data caching
 - **File storage** for documents and images
 
@@ -23,7 +23,7 @@ Before deployment, ensure the following:
 - Cloudflare account for DNS and CDN
 - Docker and Docker Compose for local development
 - Node.js 18+ and Python 3.9+ for application runtime
-- PostgreSQL 13+ and Redis 6+ for data services
+- MySQL 8+ and Redis 6+ for data services
 
 ### Knowledge Requirements
 - AWS services (EC2, RDS, ElastiCache, S3, CloudFront)
@@ -55,7 +55,7 @@ Before deployment, ensure the following:
 
 ### Step 2: Database Provisioning (AWS RDS)
 
-1. Launch PostgreSQL RDS instance:
+1. Launch MySQL RDS instance:
    ```bash
    aws rds create-db-instance \
      --db-instance-identifier blink-eye-db \
