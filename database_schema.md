@@ -381,38 +381,219 @@ CREATE INDEX idx_telemedicine_sessions_tenant_patient ON telemedicine_sessions(t
 
 ```mermaid
 erDiagram
-    tenants ||--o{ users : "has"
-    tenants ||--o{ roles : "has"
-    tenants ||--o{ patients : "has"
-    tenants ||--o{ appointments : "has"
-    tenants ||--o{ medical_records : "has"
-    tenants ||--o{ doctor_documents : "has"
-    tenants ||--o{ accommodations : "has"
-    tenants ||--o{ leads : "has"
-    tenants ||--o{ content_tenant_variants : "has"
-    tenants ||--o{ billing_invoices : "has"
-    tenants ||--o{ inventory_items : "has"
-    tenants ||--o{ telemedicine_sessions : "has"
-    tenants ||--o{ user_roles : "has"
-    tenants ||--o{ role_permissions : "has"
+    TENANTS {
+        int id PK
+        string name
+        string subdomain
+        json branding_config
+        enum status
+        timestamp created_at
+        timestamp updated_at
+    }
+    USERS {
+        int id PK
+        int tenant_id FK
+        string email
+        string password_hash
+        string first_name
+        string last_name
+        string phone
+        bool is_active
+        timestamp created_at
+        timestamp updated_at
+    }
+    ROLES {
+        int id PK
+        int tenant_id FK
+        string name
+        text description
+        timestamp created_at
+    }
+    PERMISSIONS {
+        int id PK
+        string name
+        text description
+        string resource
+        string action
+    }
+    USER_ROLES {
+        int id PK
+        int tenant_id FK
+        int user_id FK
+        int role_id FK
+        timestamp assigned_at
+    }
+    ROLE_PERMISSIONS {
+        int id PK
+        int tenant_id FK
+        int role_id FK
+        int permission_id FK
+    }
+    PATIENTS {
+        int id PK
+        int tenant_id FK
+        string first_name
+        string last_name
+        date date_of_birth
+        string gender
+        string email
+        string phone
+        text address
+        string medical_record_number
+        timestamp created_at
+        timestamp updated_at
+    }
+    APPOINTMENTS {
+        int id PK
+        int tenant_id FK
+        int patient_id FK
+        int doctor_id FK
+        timestamp appointment_date
+        int duration_minutes
+        string status
+        text notes
+        timestamp created_at
+        timestamp updated_at
+    }
+    MEDICAL_RECORDS {
+        int id PK
+        int tenant_id FK
+        int patient_id FK
+        int doctor_id FK
+        string record_type
+        timestamp record_date
+        text diagnosis
+        text treatment
+        text notes
+        jsonb attachments
+        timestamp created_at
+        timestamp updated_at
+    }
+    DOCTOR_DOCUMENTS {
+        int id PK
+        int tenant_id FK
+        int doctor_id FK
+        string document_type
+        string file_path
+        date expiry_date
+        string status
+        timestamp uploaded_at
+    }
+    ACCOMMODATIONS {
+        int id PK
+        int tenant_id FK
+        int patient_id FK
+        string room_number
+        string bed_number
+        timestamp admission_date
+        timestamp discharge_date
+        string status
+        text notes
+        timestamp created_at
+        timestamp updated_at
+    }
+    LEADS {
+        int id PK
+        int tenant_id FK
+        string first_name
+        string last_name
+        string email
+        string phone
+        string source
+        string status
+        text notes
+        timestamp created_at
+        timestamp updated_at
+    }
+    CONTENT_MASTER {
+        int id PK
+        string content_type
+        string title
+        text default_content
+        jsonb metadata
+        timestamp created_at
+        timestamp updated_at
+    }
+    CONTENT_TENANT_VARIANTS {
+        int id PK
+        int tenant_id FK
+        int content_master_id FK
+        text customized_content
+        bool is_active
+        timestamp created_at
+        timestamp updated_at
+    }
+    BILLING_INVOICES {
+        int id PK
+        int tenant_id FK
+        int patient_id FK
+        int appointment_id FK
+        decimal total_amount
+        decimal paid_amount
+        string status
+        date due_date
+        timestamp created_at
+        timestamp updated_at
+    }
+    INVENTORY_ITEMS {
+        int id PK
+        int tenant_id FK
+        string name
+        string category
+        int quantity
+        decimal unit_cost
+        string supplier
+        date expiry_date
+        string location
+        timestamp created_at
+        timestamp updated_at
+    }
+    TELEMEDICINE_SESSIONS {
+        int id PK
+        int tenant_id FK
+        int patient_id FK
+        int doctor_id FK
+        timestamp session_date
+        int duration_minutes
+        string status
+        string recording_url
+        text notes
+        timestamp created_at
+        timestamp updated_at
+    }
 
-    users ||--o{ user_roles : "assigned"
-    roles ||--o{ user_roles : "assigned"
-    roles ||--o{ role_permissions : "has"
-    permissions ||--o{ role_permissions : "granted"
+    TENANTS ||--o{ USERS : "has"
+    TENANTS ||--o{ ROLES : "has"
+    TENANTS ||--o{ PATIENTS : "has"
+    TENANTS ||--o{ APPOINTMENTS : "has"
+    TENANTS ||--o{ MEDICAL_RECORDS : "has"
+    TENANTS ||--o{ DOCTOR_DOCUMENTS : "has"
+    TENANTS ||--o{ ACCOMMODATIONS : "has"
+    TENANTS ||--o{ LEADS : "has"
+    TENANTS ||--o{ CONTENT_TENANT_VARIANTS : "has"
+    TENANTS ||--o{ BILLING_INVOICES : "has"
+    TENANTS ||--o{ INVENTORY_ITEMS : "has"
+    TENANTS ||--o{ TELEMEDICINE_SESSIONS : "has"
+    TENANTS ||--o{ USER_ROLES : "has"
+    TENANTS ||--o{ ROLE_PERMISSIONS : "has"
 
-    patients ||--o{ appointments : "books"
-    users ||--o{ appointments : "provides"
-    patients ||--o{ medical_records : "has"
-    users ||--o{ medical_records : "creates"
-    users ||--o{ doctor_documents : "owns"
-    patients ||--o{ accommodations : "occupies"
-    patients ||--o{ billing_invoices : "receives"
-    appointments ||--o{ billing_invoices : "generates"
-    patients ||--o{ telemedicine_sessions : "participates"
-    users ||--o{ telemedicine_sessions : "conducts"
+    USERS ||--o{ USER_ROLES : "assigned"
+    ROLES ||--o{ USER_ROLES : "assigned"
+    ROLES ||--o{ ROLE_PERMISSIONS : "has"
+    PERMISSIONS ||--o{ ROLE_PERMISSIONS : "granted"
 
-    content_master ||--o{ content_tenant_variants : "customized by"
+    PATIENTS ||--o{ APPOINTMENTS : "books"
+    USERS ||--o{ APPOINTMENTS : "provides"
+    PATIENTS ||--o{ MEDICAL_RECORDS : "has"
+    USERS ||--o{ MEDICAL_RECORDS : "creates"
+    USERS ||--o{ DOCTOR_DOCUMENTS : "owns"
+    PATIENTS ||--o{ ACCOMMODATIONS : "occupies"
+    PATIENTS ||--o{ BILLING_INVOICES : "receives"
+    APPOINTMENTS ||--o{ BILLING_INVOICES : "generates"
+    PATIENTS ||--o{ TELEMEDICINE_SESSIONS : "participates"
+    USERS ||--o{ TELEMEDICINE_SESSIONS : "conducts"
+
+    CONTENT_MASTER ||--o{ CONTENT_TENANT_VARIANTS : "customized by"
 ```
 
 ## Notes
