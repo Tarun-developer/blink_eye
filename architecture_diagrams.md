@@ -2,17 +2,15 @@
 
 ## Overview
 
-The platform uses a cloud-based setup with separate websites for each hospital.
+The platform uses a cloud-based setup with separate websites for each hospital. The backend is a monolithic Laravel application that handles all business logic, with frontend rendered using Blade templates styled with Tailwind CSS for responsive and modern UI.
 
 ```mermaid
 graph TB
-    P[Patients] --> W[Web Interfaces]
-    S[Staff] --> W
-    W --> A[API Gateway]
-    A --> M[Microservices]
-    M --> D[(MySQL Database)]
-    M --> F[(File Storage)]
-    M --> C[(Redis Cache)]
+    P[Patients] --> L[Laravel Application]
+    S[Staff] --> L
+    L --> D[(MySQL Database)]
+    L --> F[(File Storage)]
+    L --> C[(Redis Cache)]
 ```
 
 ## Key Diagrams

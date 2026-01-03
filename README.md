@@ -50,13 +50,12 @@ The database uses tenant_id to connect subdomains to their data. All queries fil
 
 ```mermaid
 graph LR
-    A[Subdomain: hospital.blinkeye.com] --> B[API Gateway]
-    B --> C[Microservices]
-    C --> D[MySQL Database]
-    D --> E[(Tables with tenant_id)]
+    A[Subdomain: hospital.blinkeye.com] --> B[Laravel Application]
+    B --> C[MySQL Database]
+    C --> D[(Tables with tenant_id)]
 
-    F[tenant_id = 1] --> G[Hospital Data]
-    H[tenant_id = 2] --> I[Other Hospital Data]
+    E[tenant_id = 1] --> F[Hospital Data]
+    G[tenant_id = 2] --> H[Other Hospital Data]
 ```
 
 - **Tenant ID**: Links subdomain to database records
@@ -74,8 +73,8 @@ graph LR
 
 ## Technology Stack
 
-- **Frontend**: React.js for web interfaces
-- **Backend**: Node.js microservices
+- **Frontend**: Blade templates with Tailwind CSS for responsive UI
+- **Backend**: Monolithic Laravel application
 - **Database**: MySQL for data storage
 - **Cache**: Redis for speed
 - **Hosting**: Cloud-based with subdomains
@@ -85,16 +84,17 @@ graph LR
 *Note: This project is in planning phase. Setup instructions will be added later.*
 
 ### Prerequisites
-- Node.js (v18+)
+- PHP (v8.1+)
+- Composer
 - MySQL (v8+)
 - Redis
 
 ### Development Setup
 1. Clone the repository
-2. Install dependencies: `npm install`
-3. Set up environment variables
-4. Initialize database
-5. Start development server: `npm run dev`
+2. Install dependencies: `composer install`
+3. Set up environment variables (.env file)
+4. Initialize database: `php artisan migrate`
+5. Start development server: `php artisan serve`
 
 ## Usage Guide
 
@@ -120,13 +120,12 @@ For more details, see:
 
 ## Technology Stack
 
-- **Backend**: Microservices architecture (Node.js/Express recommended)
-- **Frontend**: React.js for web interfaces
+- **Backend**: Monolithic Laravel application for all business logic
+- **Frontend**: Blade templates with Tailwind CSS for responsive and modern UI
 - **Database**: MySQL for multi-tenant data isolation
 - **Cache**: Redis for session management and data caching
-- **API Gateway**: For authentication, routing, and load balancing
 - **File Storage**: Cloud storage solutions (AWS S3, Google Cloud Storage) for documents and images
-- **Deployment**: Containerized with Docker/Kubernetes for scalability
+- **Deployment**: Containerized with Docker for scalability
 - **Security**: End-to-end encryption, OAuth 2.0, multi-factor authentication
 - **Monitoring**: Real-time metrics and automated alerting systems
 
@@ -135,17 +134,18 @@ For more details, see:
 *Note: This project is currently in the planning and design phase. Installation instructions will be provided once development begins.*
 
 ### Prerequisites
-- Node.js (v18+)
+- PHP (v8.1+)
+- Composer
 - MySQL (v8+)
 - Redis
 - Docker and Docker Compose
 
 ### Development Setup
 1. Clone the repository
-2. Install dependencies: `npm install`
+2. Install dependencies: `composer install`
 3. Set up environment variables (see `.env.example`)
-4. Initialize database: `npm run db:migrate`
-5. Start development server: `npm run dev`
+4. Initialize database: `php artisan migrate`
+5. Start development server: `php artisan serve`
 
 ### Production Deployment
 - Use provided Docker Compose files for containerized deployment
@@ -198,8 +198,8 @@ We welcome contributions to the Blink Eye Hospitals platform! Please follow thes
 5. Ensure all tests pass and code is properly formatted
 
 ### Code Standards
-- Follow ESLint and Prettier configurations
-- Use TypeScript for type safety
+- Follow PSR standards for PHP code
+- Use Laravel conventions and best practices
 - Implement proper error handling and logging
 - Maintain comprehensive documentation for new features
 
@@ -211,8 +211,8 @@ We welcome contributions to the Blink Eye Hospitals platform! Please follow thes
 5. Address feedback and make necessary revisions
 
 ### Areas for Contribution
-- Frontend components and user interfaces
-- Backend API development and microservices
+- Frontend Blade templates and Tailwind CSS styling
+- Backend Laravel controllers, models, and services
 - Database schema optimizations
 - Security enhancements
 - Testing and quality assurance

@@ -2,12 +2,12 @@
 
 ## Introduction
 
-This guide provides comprehensive instructions for deploying and hosting the Blink Eye Hospitals platform, a multi-tenant healthcare management system. The platform follows a microservices architecture with tenant isolation, as detailed in the [architecture diagrams](architecture_diagrams.md).
+This guide provides comprehensive instructions for deploying and hosting the Blink Eye Hospitals platform, a multi-tenant healthcare management system. The platform uses a monolithic Laravel application with tenant isolation, as detailed in the [architecture diagrams](architecture_diagrams.md).
 
 Key architectural components include:
 - **Multi-tenant isolation** via subdomain-based routing and application-level filtering
-- **Microservices** for modular functionality (EHR, appointments, billing, etc.)
-- **API Gateway** for authentication, routing, and load balancing
+- **Monolithic Laravel application** handling all business logic
+- **Blade templates with Tailwind CSS** for frontend rendering
 - **MySQL database** with tenant-specific data partitioning
 - **Redis cache** for session and data caching
 - **File storage** for documents and images
@@ -22,7 +22,7 @@ Before deployment, ensure the following:
 - AWS account with appropriate permissions
 - Cloudflare account for DNS and CDN
 - Docker and Docker Compose for local development
-- Node.js 18+ and Python 3.9+ for application runtime
+- PHP 8.1+ and Composer for application runtime
 - MySQL 8+ and Redis 6+ for data services
 
 ### Knowledge Requirements
@@ -60,8 +60,8 @@ Before deployment, ensure the following:
    aws rds create-db-instance \
      --db-instance-identifier blink-eye-db \
      --db-instance-class db.r5.large \
-     --engine postgres \
-     --engine-version 13.7 \
+     --engine mysql \
+     --engine-version 8.0 \
      --master-username blink_admin \
      --master-user-password <secure-password> \
      --allocated-storage 100 \
@@ -102,11 +102,9 @@ Before deployment, ensure the following:
 
 1. Set up ECS cluster or EKS cluster for containerized deployment.
 
-2. Create ECR repositories for microservices:
+2. Create ECR repository for the Laravel application:
    ```bash
-   aws ecr create-repository --repository-name blink-eye/api-gateway
-   aws ecr create-repository --repository-name blink-eye/ehr-service
-   aws ecr create-repository --repository-name blink-eye/appointment-service
+   aws ecr create-repository --repository-name blink-eye/laravel-app
    ```
 
 ### Step 6: Cloudflare Configuration
@@ -138,12 +136,12 @@ Before deployment, ensure the following:
        runs-on: ubuntu-latest
        steps:
        - uses: actions/checkout@v3
-       - name: Build and push Docker images
+       - name: Build and push Docker image
          run: |
            aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin <account>.dkr.ecr.us-east-1.amazonaws.com
-           docker build -t blink-eye/api-gateway .
-           docker tag blink-eye/api-gateway:latest <account>.dkr.ecr.us-east-1.amazonaws.com/blink-eye/api-gateway:latest
-           docker push <account>.dkr.ecr.us-east-1.amazonaws.com/blink-eye/api-gateway:latest
+           docker build -t blink-eye/laravel-app .
+           docker tag blink-eye/laravel-app:latest <account>.dkr.ecr.us-east-1.amazonaws.com/blink-eye/laravel-app:latest
+           docker push <account>.dkr.ecr.us-east-1.amazonaws.com/blink-eye/laravel-app:latest
        - name: Deploy to ECS
          uses: aws-actions/amazon-ecs-deploy-task-definition@v1
          with:
@@ -168,12 +166,7 @@ Before deployment, ensure the following:
 
 1. Connect to RDS instance and run schema creation scripts from [database_schema.md](database_schema.md).
 
-2. Enable Row-Level Security on all tenant-specific tables:
-   ```sql
-   ALTER TABLE users ENABLE ROW LEVEL SECURITY;
-   CREATE POLICY users_tenant_isolation ON users 
-   USING (tenant_id = current_setting('app.current_tenant_id')::INTEGER);
-   ```
+2. Laravel handles tenant isolation through application-level filtering using global scopes and middleware, ensuring users only access data for their tenant.
 
 3. Create database indexes for performance.
 
@@ -309,12 +302,17 @@ Before deployment, ensure the following:
 
 ### Application Configuration
 ```
-NODE_ENV=production
-PORT=3000
-DATABASE_URL=postgresql://user:password@rds-endpoint:5432/blink_eye
-REDIS_URL=redis://cache-endpoint:6379
-JWT_SECRET=<secure-jwt-secret>
-API_GATEWAY_URL=https://api.blinkeye.com
+APP_ENV=production
+APP_KEY=<base64-encoded-key>
+DB_CONNECTION=mysql
+DB_HOST=<rds-endpoint>
+DB_PORT=3306
+DB_DATABASE=blink_eye
+DB_USERNAME=<username>
+DB_PASSWORD=<password>
+REDIS_HOST=<cache-endpoint>
+REDIS_PASSWORD=<password>
+REDIS_PORT=6379
 ```
 
 ### AWS Configuration
@@ -350,9 +348,9 @@ PAYMENT_GATEWAY_KEY=<gateway-key>
 - Ensure SSL certificates are properly configured.
 
 #### Tenant Isolation Problems
-- Verify RLS policies are correctly applied.
-- Check that `app.current_tenant_id` is set in database session.
-- Review application code for proper tenant context propagation.
+- Verify Laravel global scopes are applied to tenant-specific models.
+- Check that tenant context is set in middleware for each request.
+- Review application code for proper tenant filtering in queries.
 
 #### Performance Issues
 - Monitor database query performance and add indexes as needed.
