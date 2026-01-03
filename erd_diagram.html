@@ -525,40 +525,58 @@ erDiagram
         }
 
         function exportDiagram() {
-            const diagramElement = document.querySelector('.mermaid svg');
-            if (diagramElement) {
-                // Temporarily reset zoom for export
-                const originalTransform = panZoomInstance ? panZoomInstance.getTransform() : null;
-                if (panZoomInstance) {
-                    panZoomInstance.moveTo(0, 0);
-                    panZoomInstance.zoomAbs(0, 0, 1);
-                }
+            const svgElement = document.querySelector('.mermaid svg');
+            if (svgElement) {
+                try {
+                    // Get SVG dimensions
+                    const svgRect = svgElement.getBoundingClientRect();
+                    const svgWidth = svgRect.width;
+                    const svgHeight = svgRect.height;
 
-                // Use html2canvas to export as high-quality image
-                html2canvas(diagramElement, {
-                    backgroundColor: '#ffffff',
-                    scale: 2, // HD quality (2x resolution)
-                    useCORS: true,
-                    allowTaint: false,
-                    width: diagramElement.clientWidth,
-                    height: diagramElement.clientHeight
-                }).then(canvas => {
-                    // Create download link
-                    const link = document.createElement('a');
-                    link.download = 'blink_eye_hospitals_erd_hd.png';
-                    link.href = canvas.toDataURL('image/png');
-                    link.click();
+                    // Create canvas with HD scaling
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    const scale = 2; // HD quality
 
-                    // Restore original zoom if it existed
-                    if (panZoomInstance && originalTransform) {
-                        panZoomInstance.zoomAbs(originalTransform.x, originalTransform.y, originalTransform.scale);
-                    }
-                }).catch(err => {
+                    canvas.width = svgWidth * scale;
+                    canvas.height = svgHeight * scale;
+
+                    // Scale context
+                    ctx.scale(scale, scale);
+
+                    // Set white background
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(0, 0, svgWidth, svgHeight);
+
+                    // Convert SVG to data URL
+                    const svgData = new XMLSerializer().serializeToString(svgElement);
+                    const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+                    const svgUrl = URL.createObjectURL(svgBlob);
+
+                    // Create image from SVG
+                    const img = new Image();
+                    img.onload = function() {
+                        ctx.drawImage(img, 0, 0, svgWidth, svgHeight);
+
+                        // Create download link
+                        const link = document.createElement('a');
+                        link.download = 'blink_eye_hospitals_erd_hd.png';
+                        link.href = canvas.toDataURL('image/png', 1.0);
+                        link.click();
+
+                        // Clean up
+                        URL.revokeObjectURL(svgUrl);
+                    };
+
+                    img.src = svgUrl;
+
+                } catch (err) {
                     console.error('Export failed:', err);
-                    alert('Export failed. Please try again.');
-                });
+                    // Fallback: try to use browser's print or screenshot
+                    alert('HD Export failed. Please use your browser\'s screenshot tool (Ctrl+Shift+S or Cmd+Shift+4) to capture the diagram.');
+                }
             } else {
-                alert('Diagram not found. Please wait for it to load.');
+                alert('Diagram not found. Please wait for it to load completely.');
             }
         }
 
